@@ -1,6 +1,7 @@
 from binance_api import get_top_futures_pairs, get_historical_futures_data
 from breakout import calculate_channel_width, find_pivot_points, find_breakouts
 from plot import plot_breakouts
+from plot import run_dash_app
 import pandas as pd
 
 def main():
@@ -21,6 +22,8 @@ def main():
         plot_breakouts(df)
 
         all_data = pd.concat([all_data, df], ignore_index=True)
+
+        run_dash_app()
 
     # Сохранение данных
     csv_filename = "all_futures_data.csv"
