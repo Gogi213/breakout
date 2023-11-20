@@ -8,9 +8,17 @@ def calculate_channel_width(df, period=300, cwidthu=0.03):
     channel_width = (rolling_max - rolling_min) * cwidthu
     return channel_width
 
-def find_pivot_points(df, period=5):
+def find_pivot_points(df, period=5, breakout_length=200):
     df['PivotHigh'] = df['High'][(df['High'].shift(1) < df['High']) & (df['High'].shift(-1) < df['High'])]
     df['PivotLow'] = df['Low'][(df['Low'].shift(1) > df['Low']) & (df['Low'].shift(-1) > df['Low'])]
+
+    # Удаление старых пивотных точек
+    for i in range(len(df)):
+        if pd.notna(df.loc[i, 'PivotHigh']) and (i + breakout_length < len(df)):
+            df.loc[i, 'PivotHigh'] = None
+        if pd.notna(df.loc[i, 'PivotLow']) and (i + breakout_length < len(df)):
+            df.loc[i, 'PivotLow'] = None
+
     return df
 
 def find_breakouts(df, channel_width, mintest=2):
