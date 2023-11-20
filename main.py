@@ -1,5 +1,6 @@
 from binance_api import get_top_futures_pairs, get_historical_futures_data
 from breakout import calculate_channel_width, find_pivot_points, find_breakouts
+from plot import plot_breakouts
 import pandas as pd
 
 def main():
@@ -15,6 +16,9 @@ def main():
         channel_width = calculate_channel_width(df)
         df = find_pivot_points(df)
         df = find_breakouts(df, channel_width)
+
+        # Отрисовка графика для каждой пары
+        plot_breakouts(df)
 
         all_data = pd.concat([all_data, df], ignore_index=True)
 
