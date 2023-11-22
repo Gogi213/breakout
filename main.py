@@ -3,6 +3,10 @@ from breakout import calculate_channel_width, find_pivot_points, find_breakouts
 from plot import plot_breakouts
 from plot import run_dash_app
 import pandas as pd
+from binance_api import preload_data
+
+# Загрузка данных при запуске
+preload_data()
 
 def main():
     top_pairs = get_top_futures_pairs()
