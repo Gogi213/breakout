@@ -12,20 +12,29 @@ top_pairs = get_top_futures_pairs()
 
 # Разметка приложения
 app.layout = html.Div([
-    dcc.Dropdown(
-        id='pair-dropdown',
-        options=[{'label': pair, 'value': pair} for pair in top_pairs],
-        value=top_pairs[0]
-    ),
-    dcc.Graph(id='breakout-graph')
-])
+    html.Div([
+        dcc.Graph(id='breakout-graph', config={'scrollZoom': True, 'displayModeBar': True})
+    ], style={'display': 'inline-block', 'width': '80%'}),
+
+    html.Div([
+        html.Div([html.Button(pair, id=pair, n_clicks=0) for pair in top_pairs],
+                 style={'display': 'flex', 'flexDirection': 'column'})
+    ], style={'display': 'inline-block', 'width': '20%'})
+], style={'display': 'flex'})
 
 # Обратный вызов для обновления графика
 @app.callback(
     Output('breakout-graph', 'figure'),
-    [Input('pair-dropdown', 'value')]
+    [Input(pair, 'n_clicks') for pair in top_pairs]
 )
-def update_graph(selected_pair):
+def update_graph(*args):
+    ctx = dash.callback_context
+
+    if not ctx.triggered:
+        selected_pair = top_pairs[0]
+    else:
+        selected_pair = ctx.triggered[0]['prop_id'].split('.')[0]
+
     df = get_historical_futures_data(selected_pair)
     channel_width = calculate_channel_width(df)
     df = find_pivot_points(df)
@@ -52,6 +61,16 @@ def update_graph(selected_pair):
                       xaxis_title='Date',
                       yaxis_title='Price',
                       xaxis_rangeslider_visible=False)
+
+    # Настройки для интерактивности (панорамирование, масштабирование)
+    fig.update_xaxes(rangeslider_visible=True, rangeselector=dict(
+        buttons=list([
+            dict(count=1, label="1m", step="month", stepmode="backward"),
+            dict(count=6, label="6m", step="month", stepmode="backward"),
+            dict(step="all")
+        ])
+    ))
+
     return fig
 
 # Функция для запуска Dash-приложения
