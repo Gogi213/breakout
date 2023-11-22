@@ -4,7 +4,7 @@ import requests
 import pandas as pd
 
 
-def get_top_futures_pairs(base_currency='USDT', limit=3):
+def get_top_futures_pairs(base_currency='USDT', limit=30):
     url = "https://fapi.binance.com/fapi/v1/ticker/24hr"
     response = requests.get(url)
     if response.status_code != 200:
@@ -16,7 +16,7 @@ def get_top_futures_pairs(base_currency='USDT', limit=3):
     return [pair['symbol'] for pair in pairs[:limit]]
 
 
-def get_historical_futures_data(symbol, interval='15m', limit=500):
+def get_historical_futures_data(symbol, interval='15m', limit=1000):
     url = f"https://fapi.binance.com/fapi/v1/klines"
     params = {
         'symbol': symbol,

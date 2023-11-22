@@ -1,14 +1,14 @@
 import pandas as pd
 
 # Функции для Breakout Finder
-def calculate_channel_width(df, period=300, cwidthu=0.03):
+def calculate_channel_width(df, period=1000, cwidthu=0.03):
     period = min(period, len(df))
     rolling_max = df['High'].rolling(window=period).max()
     rolling_min = df['Low'].rolling(window=period).min()
     channel_width = (rolling_max - rolling_min) * cwidthu
     return channel_width
 
-def find_pivot_points(df, period=5, breakout_length=200):
+def find_pivot_points(df, period=5, breakout_length=1000):
     df['PivotHigh'] = df['High'][(df['High'].shift(1) < df['High']) & (df['High'].shift(-1) < df['High'])]
     df['PivotLow'] = df['Low'][(df['Low'].shift(1) > df['Low']) & (df['Low'].shift(-1) > df['Low'])]
 
