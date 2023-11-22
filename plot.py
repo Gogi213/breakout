@@ -14,12 +14,12 @@ top_pairs = get_top_futures_pairs()
 app.layout = html.Div([
     html.Div([
         dcc.Graph(id='breakout-graph', config={'scrollZoom': True, 'displayModeBar': True})
-    ], style={'display': 'inline-block', 'width': '80%'}),
+    ], style={'display': 'inline-block', 'width': '92%', 'height': '250%'}),  # Изменено значение 'height'
 
     html.Div([
         html.Div([html.Button(pair, id=pair, n_clicks=0) for pair in top_pairs],
                  style={'display': 'flex', 'flexDirection': 'column'})
-    ], style={'display': 'inline-block', 'width': '20%'})
+    ], style={'display': 'inline-block', 'width': '8%'})
 ], style={'display': 'flex'})
 
 # Обратный вызов для обновления графика
@@ -60,7 +60,8 @@ def update_graph(*args):
     fig.update_layout(title=f'Breakout Analysis for {selected_pair}',
                       xaxis_title='Date',
                       yaxis_title='Price',
-                      xaxis_rangeslider_visible=False)
+                      xaxis_rangeslider_visible=False,
+                      height=750)  # Установка высоты графика
 
     # Настройки для интерактивности (панорамирование, масштабирование)
     fig.update_xaxes(rangeslider_visible=True, rangeselector=dict(
