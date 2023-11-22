@@ -2,7 +2,9 @@
 
 import requests
 import pandas as pd
+from cache_manager import CacheManager
 
+cache_manager = CacheManager()
 
 def get_top_futures_pairs(base_currency='USDT', limit=30):
     url = "https://fapi.binance.com/fapi/v1/ticker/24hr"
@@ -15,8 +17,13 @@ def get_top_futures_pairs(base_currency='USDT', limit=30):
     pairs.sort(key=lambda x: float(x['quoteVolume']), reverse=True)
     return [pair['symbol'] for pair in pairs[:limit]]
 
-
 def get_historical_futures_data(symbol, interval='15m', limit=1000):
+    # Проверяем, есть ли данные в кеше
+    cached_data = cache_manager.load_cache(symbol, interval)
+    if cached_data is not None:
+        return cached_data
+
+    # Если данных нет в кеше, загружаем их с API
     url = f"https://fapi.binance.com/fapi/v1/klines"
     params = {
         'symbol': symbol,
@@ -36,4 +43,7 @@ def get_historical_futures_data(symbol, interval='15m', limit=1000):
     numeric_columns = ['Open', 'High', 'Low', 'Close', 'Volume']
     for col in numeric_columns:
         df[col] = pd.to_numeric(df[col], errors='coerce')
+
+    # Сохраняем данные в кеш
+    cache_manager.save_cache(df, symbol, interval)
     return df
