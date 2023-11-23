@@ -8,9 +8,30 @@ def calculate_channel_width(df, period=1000, cwidthu=0.03):
     channel_width = (rolling_max - rolling_min) * cwidthu
     return channel_width
 
-def find_pivot_points(df, period=5, breakout_length=1000):
-    df['PivotHigh'] = df['High'][(df['High'].shift(1) < df['High']) & (df['High'].shift(-1) < df['High'])]
-    df['PivotLow'] = df['Low'][(df['Low'].shift(1) > df['Low']) & (df['Low'].shift(-1) > df['Low'])]
+def find_pivot_points(df, prd=5, prd2=3, breakout_length=1000):
+    # Инициализация столбцов для пивотных точек
+    df['PivotHigh'] = None
+    df['PivotLow'] = None
+
+    # Определение пивотных точек с использованием разных периодов
+    for i in range(prd, len(df) - prd):
+        window = df['High'][i-prd:i+prd+1]
+        if df['High'][i] == window.max():
+            df.at[i, 'PivotHigh'] = df['High'][i]
+
+        window = df['Low'][i-prd:i+prd+1]
+        if df['Low'][i] == window.min():
+            df.at[i, 'PivotLow'] = df['Low'][i]
+
+    # Использование prd2 для последующих пивотных точек
+    for i in range(prd2, len(df) - prd2):
+        window = df['High'][i-prd2:i+prd2+1]
+        if df['High'][i] == window.max():
+            df.at[i, 'PivotHigh'] = df['High'][i]
+
+        window = df['Low'][i-prd2:i+prd2+1]
+        if df['Low'][i] == window.min():
+            df.at[i, 'PivotLow'] = df['Low'][i]
 
     # Удаление старых пивотных точек
     for i in range(len(df)):
