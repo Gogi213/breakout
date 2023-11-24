@@ -8,54 +8,56 @@ def calculate_channel_width(df, period=1000, cwidthu=0.03):
     channel_width = (rolling_max - rolling_min) * cwidthu
     return channel_width
 
-def find_pivot_points(df, prd=5, prd2=3, breakout_length=1000):
-    # Инициализация столбцов для пивотных точек
+def find_pivot_points(df, prd=5, prd2=3, breakout_length=200):
     df['PivotHigh'] = None
     df['PivotLow'] = None
 
-    # Определение пивотных точек с использованием разных периодов
+    pivot_highs = []
+    pivot_lows = []
+
     for i in range(prd, len(df) - prd):
-        window = df['High'][i-prd:i+prd+1]
-        if df['High'][i] == window.max():
+        period = prd2 if len(pivot_highs) > 0 or len(pivot_lows) > 0 else prd
+
+        high_window = df['High'][i-period:i+period+1]
+        low_window = df['Low'][i-period:i+period+1]
+
+        if df['High'][i] == high_window.max() and df['High'][i] > high_window[0:period].max() and df['High'][i] > high_window[period+1:].max():
             df.at[i, 'PivotHigh'] = df['High'][i]
+            pivot_highs.append((df['High'][i], i))
 
-        window = df['Low'][i-prd:i+prd+1]
-        if df['Low'][i] == window.min():
+        if df['Low'][i] == low_window.min() and df['Low'][i] < low_window[0:period].min() and df['Low'][i] < low_window[period+1:].min():
             df.at[i, 'PivotLow'] = df['Low'][i]
+            pivot_lows.append((df['Low'][i], i))
 
-    # Использование prd2 для последующих пивотных точек
-    for i in range(prd2, len(df) - prd2):
-        window = df['High'][i-prd2:i+prd2+1]
-        if df['High'][i] == window.max():
-            df.at[i, 'PivotHigh'] = df['High'][i]
-
-        window = df['Low'][i-prd2:i+prd2+1]
-        if df['Low'][i] == window.min():
-            df.at[i, 'PivotLow'] = df['Low'][i]
-
-    # Удаление старых пивотных точек
-    for i in range(len(df)):
-        if pd.notna(df.loc[i, 'PivotHigh']) and (i + breakout_length < len(df)):
-            df.loc[i, 'PivotHigh'] = None
-        if pd.notna(df.loc[i, 'PivotLow']) and (i + breakout_length < len(df)):
-            df.loc[i, 'PivotLow'] = None
+        # Удаление старых пивотных точек
+        pivot_highs = [(val, idx) for val, idx in pivot_highs if i - idx <= breakout_length]
+        pivot_lows = [(val, idx) for val, idx in pivot_lows if i - idx <= breakout_length]
 
     return df
 
 def find_breakouts(df, channel_width, mintest=2):
     df['BreakoutUp'] = False
     df['BreakoutDown'] = False
-    for i in range(len(df)):
-        pivot_high = df.loc[i, 'PivotHigh']
-        pivot_low = df.loc[i, 'PivotLow']
-        close_price = df.loc[i, 'Close']
 
-        if pd.notna(pivot_high) and len(df.loc[i - mintest:i, 'PivotHigh'].dropna()) >= mintest:
-            if close_price > pivot_high + channel_width[i]:
+    # Для каждого бара в данных
+    for i in range(len(df)):
+        pivot_highs = df.loc[max(0, i - mintest):i, 'PivotHigh'].dropna()
+        pivot_lows = df.loc[max(0, i - mintest):i, 'PivotLow'].dropna()
+        close_price = df.loc[i, 'Close']
+        open_price = df.loc[i, 'Open']
+        highest_price = df['High'].iloc[max(0, i - mintest):i+1].max()
+        lowest_price = df['Low'].iloc[max(0, i - mintest):i+1].min()
+
+        # Проверка прорыва вверх
+        if len(pivot_highs) >= mintest and close_price > open_price and close_price > highest_price:
+            max_pivot_high = pivot_highs.max()
+            if open_price <= max_pivot_high and any(max_pivot_high >= ph >= max_pivot_high - channel_width[i] for ph in pivot_highs):
                 df.loc[i, 'BreakoutUp'] = True
 
-        if pd.notna(pivot_low) and len(df.loc[i - mintest:i, 'PivotLow'].dropna()) >= mintest:
-            if close_price < pivot_low - channel_width[i]:
+        # Проверка прорыва вниз
+        if len(pivot_lows) >= mintest and close_price < open_price and close_price < lowest_price:
+            min_pivot_low = pivot_lows.min()
+            if open_price >= min_pivot_low and any(min_pivot_low <= pl <= min_pivot_low + channel_width[i] for pl in pivot_lows):
                 df.loc[i, 'BreakoutDown'] = True
 
     return df

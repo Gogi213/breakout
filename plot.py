@@ -44,33 +44,43 @@ def update_graph(*args):
     fig = go.Figure()
 
     # Добавление свечного графика
-    fig.add_trace(go.Candlestick(x=df.index,
-                                 open=df['Open'],
-                                 high=df['High'],
-                                 low=df['Low'],
-                                 close=df['Close'],
-                                 name='Candlesticks'))
+    fig.add_trace(go.Candlestick(
+        x=df.index,
+        open=df['Open'],
+        high=df['High'],
+        low=df['Low'],
+        close=df['Close'],
+        name='Candlesticks'
+    ))
 
-    # Добавление линий прорыва и других элементов, если они есть в df
-    if 'BreakoutHigh' in df.columns and 'BreakoutLow' in df.columns:
-        fig.add_trace(go.Scatter(x=df.index, y=df['BreakoutHigh'], mode='lines', name='Breakout High'))
-        fig.add_trace(go.Scatter(x=df.index, y=df['BreakoutLow'], mode='lines', name='Breakout Low'))
+    # Добавление линий прорыва
+    for i in range(len(df)):
+        if df.loc[i, 'BreakoutUp']:
+            fig.add_trace(go.Scatter(
+                x=[df.index[i], df.index[i]],
+                y=[df.loc[i, 'Low'], df.loc[i, 'High']],
+                mode='lines',
+                line=dict(color='blue')
+            ))
+        if df.loc[i, 'BreakoutDown']:
+            fig.add_trace(go.Scatter(
+                x=[df.index[i], df.index[i]],
+                y=[df.loc[i, 'Low'], df.loc[i, 'High']],
+                mode='lines',
+                line=dict(color='red')
+            ))
 
     # Настройка внешнего вида графика
-    fig.update_layout(title=f'Breakout Analysis for {selected_pair}',
-                      xaxis_title='Date',
-                      yaxis_title='Price',
-                      xaxis_rangeslider_visible=False,
-                      height=750)  # Установка высоты графика
+    fig.update_layout(
+        title=f'Breakout Analysis for {selected_pair}',
+        xaxis_title='Date',
+        yaxis_title='Price',
+        xaxis_rangeslider_visible=False,
+        height=750  # Установка высоты графика
+    )
 
     # Настройки для интерактивности (панорамирование, масштабирование)
-    fig.update_xaxes(rangeslider_visible=True, rangeselector=dict(
-        buttons=list([
-            dict(count=1, label="1m", step="month", stepmode="backward"),
-            dict(count=6, label="6m", step="month", stepmode="backward"),
-            dict(step="all")
-        ])
-    ))
+    fig.update_xaxes(rangeslider_visible=True)
 
     return fig
 
