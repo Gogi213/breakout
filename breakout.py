@@ -8,7 +8,7 @@ def calculate_channel_width(df, period=1000, cwidthu=0.03):
     channel_width = (rolling_max - rolling_min) * cwidthu
     return channel_width
 
-def find_pivot_points(df, prd=5, prd2=3, breakout_length=200):
+def find_pivot_points(df, prd=5, prd2=3, breakout_length=1000):
     df['PivotHigh'] = None
     df['PivotLow'] = None
 

@@ -27,12 +27,17 @@ def main():
 
         all_data = pd.concat([all_data, df], ignore_index=True)
 
-        run_dash_app()
-
-    # Сохранение данных
+    # Сохранение данных перед запуском веб-приложения
     csv_filename = "all_futures_data.csv"
     all_data.to_csv(csv_filename, index=False)
     print(f"All data saved to {csv_filename}")
+
+    # Запуск веб-приложения после обработки всех данных
+    run_dash_app()
+
+if __name__ == "__main__":
+    main()
+
 
 if __name__ == "__main__":
     main()
