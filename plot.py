@@ -2,7 +2,6 @@ import dash
 from dash import dcc, html, Input, Output
 import plotly.graph_objects as go
 from binance_api import get_top_futures_pairs, get_historical_futures_data
-from breakout import calculate_channel_width, find_pivot_points, find_breakouts
 
 # Инициализация Dash-приложения
 app = dash.Dash(__name__)
@@ -36,9 +35,6 @@ def update_graph(*args):
         selected_pair = ctx.triggered[0]['prop_id'].split('.')[0]
 
     df = get_historical_futures_data(selected_pair)
-    channel_width = calculate_channel_width(df)
-    df = find_pivot_points(df)
-    df = find_breakouts(df, channel_width)
 
     # Создание графика с Plotly
     fig = go.Figure()
@@ -52,23 +48,6 @@ def update_graph(*args):
         close=df['Close'],
         name='Candlesticks'
     ))
-
-    # Добавление линий прорыва
-    for i in range(len(df)):
-        if df.loc[i, 'BreakoutUp']:
-            fig.add_trace(go.Scatter(
-                x=[df.index[i], df.index[i]],
-                y=[df.loc[i, 'Low'], df.loc[i, 'High']],
-                mode='lines',
-                line=dict(color='blue')
-            ))
-        if df.loc[i, 'BreakoutDown']:
-            fig.add_trace(go.Scatter(
-                x=[df.index[i], df.index[i]],
-                y=[df.loc[i, 'Low'], df.loc[i, 'High']],
-                mode='lines',
-                line=dict(color='red')
-            ))
 
     # Настройка внешнего вида графика
     fig.update_layout(

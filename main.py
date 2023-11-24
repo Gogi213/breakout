@@ -1,5 +1,7 @@
 from binance_api import get_top_futures_pairs, get_historical_futures_data
-from breakout import calculate_channel_width, find_pivot_points, find_breakouts
+# Если вы перенесли функции из breakout.py в другой файл, импортируйте их здесь
+# from another_module import calculate_channel_width, find_pivot_points, find_breakouts
+
 from plot import plot_breakouts
 from plot import run_dash_app
 import pandas as pd
@@ -17,12 +19,13 @@ def main():
         df = get_historical_futures_data(pair)
         df['Pair'] = pair
 
-        # Применение логики поиска прорывов
-        channel_width = calculate_channel_width(df)
-        df = find_pivot_points(df)
-        df = find_breakouts(df, channel_width)
+        # Если вы решили сохранить логику поиска прорывов, добавьте её здесь
+        # channel_width = calculate_channel_width(df)
+        # df = find_pivot_points(df)
+        # df = find_breakouts(df, channel_width)
 
         # Отрисовка графика для каждой пары
+        # Если логика поиска прорывов была удалена, возможно, вам нужно будет изменить эту функцию
         plot_breakouts(df)
 
         all_data = pd.concat([all_data, df], ignore_index=True)
@@ -34,10 +37,6 @@ def main():
 
     # Запуск веб-приложения после обработки всех данных
     run_dash_app()
-
-if __name__ == "__main__":
-    main()
-
 
 if __name__ == "__main__":
     main()
