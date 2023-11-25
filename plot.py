@@ -80,7 +80,7 @@ def update_graph(*args):
         name='Breakouts'
     ))
 
-    # Соединение локальных максимумов с тестами
+    # Соединение локальных максимумов с тестами и добавление горизонтальных линий
     maxima_indices = local_maxima.index.tolist()
     for i in range(len(maxima_indices) - 1):
         max_index = maxima_indices[i]
@@ -95,6 +95,44 @@ def update_graph(*args):
                 line=dict(color='lightblue', width=1),
                 showlegend=False
             ))
+
+        # Добавление горизонтальной линии от максимума
+        fig.add_trace(go.Scatter(
+            x=[max_index, df.index[-1]],
+            y=[df.loc[max_index]['High'], df.loc[max_index]['High']],
+            mode='lines',
+            line=dict(color='blue', width=1, dash='dash'),
+            showlegend=False
+        ))
+
+        # Нумерация и горизонтальные линии для тестов
+        for test_number, (test_index, test_row) in enumerate(test_candidates.iterrows(), start=1):
+            # Горизонтальная линия от теста
+            fig.add_trace(go.Scatter(
+                x=[test_index, df.index[-1]],
+                y=[test_row['High'], test_row['High']],
+                mode='lines',
+                line=dict(color='orange', width=1, dash='dash'),
+                showlegend=False
+            ))
+
+            # Нумерация тестов
+            fig.add_annotation(
+                x=test_index,
+                y=test_row['High'],
+                text=str(test_number),
+                showarrow=False,
+                font=dict(
+                    family="Courier New, monospace",
+                    size=12,
+                    color="#ffffff"
+                ),
+                align="center",
+                bgcolor="orange",
+                bordercolor="black",
+                borderwidth=2,
+                borderpad=4
+            )
 
     # Настройка внешнего вида графика
     fig.update_layout(
