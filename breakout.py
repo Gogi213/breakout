@@ -7,34 +7,24 @@ def find_local_maxima(df, left_span=7, right_span=7):
             local_maxima.append(i)
     return df.iloc[local_maxima]
 
-
 def find_tests(df, local_maxima, threshold=0.005):
     tests = []
+    last_max_price = 0
     for index, max_row in local_maxima.iterrows():
-        max_price = max_row['Close']
-        # Определяем диапазон цен для тестов
-        upper_bound = max_price * 1.01  # 1% выше локального максимума
-        lower_bound = max_price * (1 - threshold)  # не ниже 0.5% от локального максимума
+        max_price = max_row['High']
+        if max_price <= last_max_price:
+            continue
+        last_max_price = max_price
 
-        # Фильтруем кандидатов на тесты в этом диапазоне
-        test_candidates = df[(df.index > index) & (df['Close'] >= lower_bound) & (df['Close'] <= upper_bound)]
-
-        # Исключаем тесты в диапазоне +/- 7 свечей от локального максимума
+        lower_bound = max_price * (1 - threshold)
+        test_candidates = df[(df.index > index) & (df['High'] <= max_price) & (df['High'] >= lower_bound)]
         test_candidates = test_candidates[test_candidates.index > index + 7]
 
-        # Выбираем тест с максимальной ценой закрытия
         if not test_candidates.empty:
-            max_test = test_candidates.loc[test_candidates['Close'].idxmax()]
+            max_test = test_candidates.loc[test_candidates['High'].idxmax()]
             tests.append(max_test.name)
 
     return df.loc[tests]
-
-
-
-
-
-
-
 
 def find_breakouts(df, local_maxima, tests):
     """
@@ -42,9 +32,9 @@ def find_breakouts(df, local_maxima, tests):
     """
     breakouts = []
     for index, max_row in local_maxima.iterrows():
-        max_price = max_row['Close']
-        breakout_candidates = df[(df.index > index) & (df['Close'] > max_price)]
+        max_price = max_row['High']
+        breakout_candidates = df[(df.index > index) & (df['High'] > max_price)]
         for b_index, b_row in breakout_candidates.iterrows():
-            if all(df.loc[tests.index[(tests.index < b_index) & (tests['Close'] < b_row['Close'])]]):
+            if all(df.loc[tests.index[(tests.index < b_index) & (tests['High'] < b_row['High'])]]):
                 breakouts.append(b_index)
     return df.loc[breakouts]
