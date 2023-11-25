@@ -60,7 +60,7 @@ def update_graph(*args):
         x=local_maxima.index,
         y=local_maxima['High'],
         mode='markers',
-        marker=dict(color='blue', size=10),
+        marker=dict(color='blue', size=5),
         name='Local Maxima'
     ))
 
@@ -68,7 +68,7 @@ def update_graph(*args):
         x=tests.index,
         y=tests['High'],
         mode='markers',
-        marker=dict(color='orange', size=10),
+        marker=dict(color='orange', size=5),
         name='Tests'
     ))
 
@@ -76,9 +76,21 @@ def update_graph(*args):
         x=breakouts.index,
         y=breakouts['High'],
         mode='markers',
-        marker=dict(color='green', size=10),
+        marker=dict(color='green', size=5),
         name='Breakouts'
     ))
+
+    # Соединение локальных максимумов с тестами
+    for index, max_row in local_maxima.iterrows():
+        test_candidates = tests[tests.index > index]
+        for test_index, test_row in test_candidates.iterrows():
+            fig.add_trace(go.Scatter(
+                x=[index, test_index],
+                y=[max_row['High'], test_row['High']],
+                mode='lines',
+                line=dict(color='lightblue', width=1),
+                showlegend=False
+            ))
 
     # Настройка внешнего вида графика
     fig.update_layout(
