@@ -81,12 +81,16 @@ def update_graph(*args):
     ))
 
     # Соединение локальных максимумов с тестами
-    for index, max_row in local_maxima.iterrows():
-        test_candidates = tests[tests.index > index]
+    maxima_indices = local_maxima.index.tolist()
+    for i in range(len(maxima_indices) - 1):
+        max_index = maxima_indices[i]
+        next_max_index = maxima_indices[i + 1]
+        test_candidates = tests[(tests.index > max_index) & (tests.index < next_max_index)]
+
         for test_index, test_row in test_candidates.iterrows():
             fig.add_trace(go.Scatter(
-                x=[index, test_index],
-                y=[max_row['High'], test_row['High']],
+                x=[max_index, test_index],
+                y=[df.loc[max_index]['High'], test_row['High']],
                 mode='lines',
                 line=dict(color='lightblue', width=1),
                 showlegend=False
