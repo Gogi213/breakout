@@ -1,14 +1,12 @@
 import pandas as pd
 
 def find_local_maxima(df, left_span=7, right_span=7):
-    """
-    Находит локальные максимумы в данных.
-    """
     local_maxima = []
     for i in range(left_span, len(df) - right_span):
-        if df['Close'][i] > max(df['Close'][i-left_span:i]) and df['Close'][i] > max(df['Close'][i+1:i+right_span+1]):
+        if df['High'][i] > max(df['High'][i-left_span:i]) and df['High'][i] > max(df['High'][i+1:i+right_span+1]):
             local_maxima.append(i)
     return df.iloc[local_maxima]
+
 
 def find_tests(df, local_maxima, threshold=0.005):
     tests = []

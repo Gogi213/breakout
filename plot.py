@@ -58,7 +58,7 @@ def update_graph(*args):
     # Добавление маркеров для локальных максимумов, тестов и пробоев
     fig.add_trace(go.Scatter(
         x=local_maxima.index,
-        y=local_maxima['Close'],
+        y=local_maxima['High'],
         mode='markers',
         marker=dict(color='blue', size=10),
         name='Local Maxima'
@@ -66,7 +66,7 @@ def update_graph(*args):
 
     fig.add_trace(go.Scatter(
         x=tests.index,
-        y=tests['Close'],
+        y=tests['High'],
         mode='markers',
         marker=dict(color='orange', size=10),
         name='Tests'
@@ -74,7 +74,7 @@ def update_graph(*args):
 
     fig.add_trace(go.Scatter(
         x=breakouts.index,
-        y=breakouts['Close'],
+        y=breakouts['High'],
         mode='markers',
         marker=dict(color='green', size=10),
         name='Breakouts'
