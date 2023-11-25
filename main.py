@@ -4,7 +4,7 @@ import pandas as pd
 from binance_api import preload_data
 
 # Импорт функций из breakout.py
-from breakout import find_local_maxima, find_tests, find_breakouts
+from breakout import find_local_maxima, find_tests
 
 # Загрузка данных при запуске
 preload_data()
@@ -18,15 +18,13 @@ def main():
         df = get_historical_futures_data(pair)
         df['Pair'] = pair
 
-        # Применение логики индикатора пробоя
+        # Применение логики индикатора
         local_maxima = find_local_maxima(df)
         tests = find_tests(df, local_maxima)
-        breakouts = find_breakouts(df, local_maxima, tests)
 
         # Добавление результатов в DataFrame
         df['Local_Maxima'] = df.index.isin(local_maxima.index)
         df['Tests'] = df.index.isin(tests.index)
-        df['Breakouts'] = df.index.isin(breakouts.index)
 
         # Отрисовка графика для каждой пары
         plot_breakouts(df)
