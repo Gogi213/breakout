@@ -13,11 +13,21 @@ def find_tests(df, local_maxima, threshold=0.005):
     for index, max_row in local_maxima.iterrows():
         max_price = max_row['Close']
         # Находим тесты, которые следуют после локального максимума
-        test_candidates = df[(df.index > index) & (df['Close'] <= max_price * (1 + threshold))]
+        test_candidates = df[(df.index > index) & (df['Close'] <= max_price)]
+        # Исключаем тесты, которые ниже чем на 0.5% от цены локального максимума
+        test_candidates = test_candidates[test_candidates['Close'] >= max_price * (1 - threshold)]
         # Исключаем тесты в диапазоне +/- 7 свечей от локального максимума
         test_candidates = test_candidates[test_candidates.index > index + 7]
-        tests.extend(test_candidates.index.tolist())
+
+        # Находим тест с максимальной ценой
+        if not test_candidates.empty:
+            max_test = test_candidates.loc[test_candidates['Close'].idxmax()]
+            tests.append(max_test.name)
+
     return df.loc[tests]
+
+
+
 
 
 
