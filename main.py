@@ -1,11 +1,10 @@
 from binance_api import get_top_futures_pairs, get_historical_futures_data
-# Если вы перенесли функции из breakout.py в другой файл, импортируйте их здесь
-# from another_module import calculate_channel_width, find_pivot_points, find_breakouts
-
-from plot import plot_breakouts
-from plot import run_dash_app
+from plot import plot_breakouts, run_dash_app
 import pandas as pd
 from binance_api import preload_data
+
+# Импорт функций из breakout.py
+from breakout import find_local_maxima, find_tests, find_breakouts
 
 # Загрузка данных при запуске
 preload_data()
@@ -19,13 +18,17 @@ def main():
         df = get_historical_futures_data(pair)
         df['Pair'] = pair
 
-        # Если вы решили сохранить логику поиска прорывов, добавьте её здесь
-        # channel_width = calculate_channel_width(df)
-        # df = find_pivot_points(df)
-        # df = find_breakouts(df, channel_width)
+        # Применение логики индикатора пробоя
+        local_maxima = find_local_maxima(df)
+        tests = find_tests(df, local_maxima)
+        breakouts = find_breakouts(df, local_maxima, tests)
+
+        # Добавление результатов в DataFrame
+        df['Local_Maxima'] = df.index.isin(local_maxima.index)
+        df['Tests'] = df.index.isin(tests.index)
+        df['Breakouts'] = df.index.isin(breakouts.index)
 
         # Отрисовка графика для каждой пары
-        # Если логика поиска прорывов была удалена, возможно, вам нужно будет изменить эту функцию
         plot_breakouts(df)
 
         all_data = pd.concat([all_data, df], ignore_index=True)

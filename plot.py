@@ -2,6 +2,7 @@ import dash
 from dash import dcc, html, Input, Output
 import plotly.graph_objects as go
 from binance_api import get_top_futures_pairs, get_historical_futures_data
+from breakout import find_local_maxima, find_tests, find_breakouts
 
 # Инициализация Dash-приложения
 app = dash.Dash(__name__)
@@ -13,7 +14,7 @@ top_pairs = get_top_futures_pairs()
 app.layout = html.Div([
     html.Div([
         dcc.Graph(id='breakout-graph', config={'scrollZoom': True, 'displayModeBar': True})
-    ], style={'display': 'inline-block', 'width': '92%', 'height': '250%'}),  # Изменено значение 'height'
+    ], style={'display': 'inline-block', 'width': '92%', 'height': '250%'}),
 
     html.Div([
         html.Div([html.Button(pair, id=pair, n_clicks=0) for pair in top_pairs],
@@ -36,6 +37,11 @@ def update_graph(*args):
 
     df = get_historical_futures_data(selected_pair)
 
+    # Находим локальные максимумы, тесты и пробои
+    local_maxima = find_local_maxima(df)
+    tests = find_tests(df, local_maxima)
+    breakouts = find_breakouts(df, local_maxima, tests)
+
     # Создание графика с Plotly
     fig = go.Figure()
 
@@ -47,6 +53,31 @@ def update_graph(*args):
         low=df['Low'],
         close=df['Close'],
         name='Candlesticks'
+    ))
+
+    # Добавление маркеров для локальных максимумов, тестов и пробоев
+    fig.add_trace(go.Scatter(
+        x=local_maxima.index,
+        y=local_maxima['Close'],
+        mode='markers',
+        marker=dict(color='blue', size=10),
+        name='Local Maxima'
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=tests.index,
+        y=tests['Close'],
+        mode='markers',
+        marker=dict(color='orange', size=10),
+        name='Tests'
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=breakouts.index,
+        y=breakouts['Close'],
+        mode='markers',
+        marker=dict(color='green', size=10),
+        name='Breakouts'
     ))
 
     # Настройка внешнего вида графика
