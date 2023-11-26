@@ -7,7 +7,7 @@ def find_local_maxima(df, left_span=7, right_span=7):
             local_maxima.append(i)
     return df.iloc[local_maxima]
 
-def find_tests(df, local_maxima, threshold=0.005):
+def find_tests(df, local_maxima, threshold=0.0006):
     tests = []
     for index, max_row in local_maxima.iterrows():
         max_price = max_row['High']
