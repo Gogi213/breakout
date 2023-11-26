@@ -16,13 +16,18 @@ def find_tests(df, local_maxima, threshold=0.0006, neighbors=5):
         test_candidates = test_candidates[test_candidates.index > index + 7]
 
         for test_index, test_row in test_candidates.iterrows():
-            # Проверка, что тест-бар выше своих соседей
-            if test_index >= neighbors and test_index < len(df) - neighbors:
-                left_neighbors = df['High'][test_index-neighbors:test_index]
-                right_neighbors = df['High'][test_index+1:test_index+neighbors+1]
-                if test_row['High'] > left_neighbors.max() and test_row['High'] > right_neighbors.max():
-                    tests.append(test_index)
+            # Проверка, что нет свечей выше максимума между максимумом и тестом
+            if df[(df.index > index) & (df.index < test_index) & (df['High'] > max_price)].empty:
+                # Проверка, что тест-бар выше своих соседей
+                if test_index >= neighbors and test_index < len(df) - neighbors:
+                    left_neighbors = df['High'][test_index-neighbors:test_index]
+                    right_neighbors = df['High'][test_index+1:test_index+neighbors+1]
+                    if test_row['High'] > left_neighbors.max() and test_row['High'] > right_neighbors.max():
+                        tests.append(test_index)
 
     return df.loc[tests]
+
+
+
 
 
