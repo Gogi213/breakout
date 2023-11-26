@@ -1,6 +1,6 @@
 import pandas as pd
 
-def find_local_maxima(df, window=14):
+def find_local_maxima(df, window=24):
     """
     Находит локальные максимумы в данных.
 
@@ -17,13 +17,12 @@ def find_tests(df, local_maxima_indices):
 
     :param df: DataFrame с данными о ценах.
     :param local_maxima_indices: Список индексов локальных максимумов.
-    :return: Список тестов.
+    :return: Список индексов, где происходят тесты.
     """
-    tests = []
+    tests_indices = []
     for index in local_maxima_indices:
         max_row = df.iloc[index]
         test_index = df[(df.index > index) & (df['High'] > max_row['High'])].index.min()
         if pd.notna(test_index):
-            test_row = df.loc[test_index]
-            tests.append({'max_index': index, 'test_index': test_index, 'max_price': max_row['High'], 'test_price': test_row['High']})
-    return tests
+            tests_indices.append(test_index)
+    return tests_indices

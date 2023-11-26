@@ -23,8 +23,8 @@ def main():
         tests = find_tests(df, local_maxima)
 
         # Добавление результатов в DataFrame
-        df['Local_Maxima'] = df.index.isin(local_maxima)
-        df['Tests'] = df.index.isin(tests.index)
+        df['Local_Maxima'] = df.index.isin(local_maxima)  # Используем индексы максимумов
+        df['Tests'] = df.index.isin(tests)  # Используем индексы тестов
 
         # Отрисовка графика для каждой пары
         plot_breakouts(df)
