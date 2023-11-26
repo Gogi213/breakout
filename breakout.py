@@ -9,6 +9,7 @@ def find_local_maxima(df, left_span=7, right_span=7):
 
 def find_tests(df, local_maxima, threshold=0.0006, neighbors=5):
     tests = []
+    last_test_price = None
     for index, max_row in local_maxima.iterrows():
         max_price = max_row['High']
         lower_bound = max_price * (1 - threshold)
@@ -16,16 +17,21 @@ def find_tests(df, local_maxima, threshold=0.0006, neighbors=5):
         test_candidates = test_candidates[test_candidates.index > index + 7]
 
         for test_index, test_row in test_candidates.iterrows():
-            # Проверка, что нет свечей выше максимума между максимумом и тестом
-            if df[(df.index > index) & (df.index < test_index) & (df['High'] > max_price)].empty:
-                # Проверка, что тест-бар выше своих соседей
-                if test_index >= neighbors and test_index < len(df) - neighbors:
-                    left_neighbors = df['High'][test_index-neighbors:test_index]
-                    right_neighbors = df['High'][test_index+1:test_index+neighbors+1]
-                    if test_row['High'] > left_neighbors.max() and test_row['High'] > right_neighbors.max():
-                        tests.append(test_index)
+            # Проверка на отсутствие высоких свечей
+            if not df[(df.index > index) & (df.index < test_index) & (df['High'] >= max_price)].empty:
+                continue
+
+            # Проверка по предыдущему тесту
+            if last_test_price is not None and test_row['High'] < last_test_price:
+                continue
+
+            # Дополнительные проверки...
+            # Если тест проходит все проверки, добавляем его
+            tests.append(test_index)
+            last_test_price = test_row['High']
 
     return df.loc[tests]
+
 
 
 
