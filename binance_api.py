@@ -1,5 +1,4 @@
 # binance_api.py
-
 import requests
 import pandas as pd
 from cache_manager import CacheManager
