@@ -18,15 +18,24 @@ class BreakoutFinder:
         self.df['PivotHigh'] = ta.pivothigh(self.df['High'], left=self.prd, right=self.prd)
         self.df['PivotLow'] = ta.pivotlow(self.df['Low'], left=self.prd, right=self.prd)
 
+        # Хранение значений и местоположений Pivot Points
+        for i in range(len(self.df)):
+            if not pd.isna(self.df['PivotHigh'][i]):
+                self.phval.append(self.df['PivotHigh'][i])
+                self.phloc.append(i)
+            if not pd.isna(self.df['PivotLow'][i]):
+                self.plval.append(self.df['PivotLow'][i])
+                self.plloc.append(i)
+
     def calculate_breakout_width(self):
         # Расчет ширины прорыва
         highest_high = self.df['High'].rolling(window=self.prd).max()
         lowest_low = self.df['Low'].rolling(window=self.prd).min()
         self.df['BreakoutWidth'] = (highest_high - lowest_low) * self.cwidthu
 
-    def initialize_arrays(self):
-        # Инициализация массивов для хранения значений и местоположений Pivot Points
-        # Этот метод должен быть дополнен логикой для заполнения массивов
+    def detect_breakouts(self):
+        # Логика для обнаружения прорывов
+        # Этот метод должен быть дополнен логикой для обнаружения прорывов
         pass
 
 # Пример использования
@@ -34,4 +43,4 @@ class BreakoutFinder:
 breakout_finder = BreakoutFinder(df)
 breakout_finder.calculate_pivot_points()
 breakout_finder.calculate_breakout_width()
-breakout_finder.initialize_arrays()
+breakout_finder.detect_breakouts()
