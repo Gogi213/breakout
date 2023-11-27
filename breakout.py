@@ -36,17 +36,8 @@ class BreakoutFinder:
 
     def detect_breakouts(self):
         # Логика для обнаружения прорывов
-        # Добавляем логику 5-го пункта
-        for i in range(len(self.df)):
-            # Логика для обнаружения bullish breakout
-            if len(self.phval) >= self.mintest and self.df['Close'][i] > self.df['Open'][i]:
-                # Дополнительные проверки и расчеты для bullish breakout
-                pass
-
-            # Логика для обнаружения bearish breakout
-            if len(self.plval) >= self.mintest and self.df['Close'][i] < self.df['Open'][i]:
-                # Дополнительные проверки и расчеты для bearish breakout
-                pass
+        # Этот метод должен быть дополнен логикой для обнаружения прорывов
+        pass
 
 # Пример использования
 # df - DataFrame с данными из Binance
