@@ -79,9 +79,7 @@ def pivothigh(df, left, right):
         if current_high > max_left and current_high > max_right:
             pivot_highs.iloc[i] = current_high
 
-    return pivot_highs
-
-
+    return pivot_highs.copy()
 
 def pivotlow(df, left, right):
     length = len(df)
@@ -95,5 +93,4 @@ def pivotlow(df, left, right):
         if current_low < min_left and current_low < min_right:
             pivot_lows.iloc[i] = current_low
 
-    return pivot_lows
-
+    return pivot_lows.copy()

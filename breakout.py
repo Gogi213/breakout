@@ -21,6 +21,16 @@ class BreakoutFinder:
 
     def calculate_pivot_points(self):
         logging.info("Вычисление Pivot Points")
+
+        # Проверка на пустоту DataFrame
+        if self.df.empty:
+            logging.warning("DataFrame is empty")
+            return
+
+        # Сброс индексов DataFrame
+        self.df.reset_index(drop=True, inplace=True)
+
+        # Присваивание значений Pivot Points
         self.df.loc[:, 'PivotHigh'] = pivothigh(self.df, left=self.prd, right=self.prd)
         self.df.loc[:, 'PivotLow'] = pivotlow(self.df, left=self.prd, right=self.prd)
 

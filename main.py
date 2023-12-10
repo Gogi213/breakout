@@ -24,6 +24,7 @@ def main():
     all_data.to_csv(csv_filename, index=False)
     print(f"All data saved to {csv_filename}")
 
+
     # Обработка данных с помощью BreakoutFinder и detect_breakouts
     for pair in top_pairs:
         df_pair = all_data[all_data['Pair'] == pair]
