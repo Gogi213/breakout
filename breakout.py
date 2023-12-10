@@ -31,8 +31,8 @@ class BreakoutFinder:
         self.df.reset_index(drop=True, inplace=True)
 
         # Присваивание значений Pivot Points
-        self.df.loc[:, 'PivotHigh'] = pivothigh(self.df, left=self.prd, right=self.prd)
-        self.df.loc[:, 'PivotLow'] = pivotlow(self.df, left=self.prd, right=self.prd)
+        self.df.loc[:, 'PivotHigh'] = pivothigh(self.df, left=self.prd, right=self.prd).copy()
+        self.df.loc[:, 'PivotLow'] = pivotlow(self.df, left=self.prd, right=self.prd).copy()
 
         # Хранение значений и местоположений Pivot Points
         for i in range(len(self.df)):
