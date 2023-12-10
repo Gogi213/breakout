@@ -21,8 +21,8 @@ class BreakoutFinder:
 
     def calculate_pivot_points(self):
         logging.info("Вычисление Pivot Points")
-        self.df['PivotHigh'] = pivothigh(self.df, left=self.prd, right=self.prd)
-        self.df['PivotLow'] = pivotlow(self.df, left=self.prd, right=self.prd)
+        self.df.loc[:, 'PivotHigh'] = pivothigh(self.df, left=self.prd, right=self.prd)
+        self.df.loc[:, 'PivotLow'] = pivotlow(self.df, left=self.prd, right=self.prd)
 
         # Хранение значений и местоположений Pivot Points
         for i in range(len(self.df)):
@@ -37,7 +37,7 @@ class BreakoutFinder:
         # Расчет ширины прорыва
         highest_high = self.df['High'].rolling(window=self.prd).max()
         lowest_low = self.df['Low'].rolling(window=self.prd).min()
-        self.df['BreakoutWidth'] = (highest_high - lowest_low) * self.cwidthu
+        self.df.loc[:, 'BreakoutWidth'] = (highest_high - lowest_low) * self.cwidthu
 
     def detect_breakouts(self):
         # Вводная часть для обнаружения прорывов
