@@ -8,54 +8,60 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 def detect_breakouts(df, phval, phloc, plval, plloc, prd, cwidthu, mintest):
     logging.info("Обнаружение прорывов")
 
-    # Вводная часть для обнаружения прорывов
+    # Инициализация переменных
     bomax = np.nan  # Потенциальный уровень бычьего прорыва
-    bostart = -1  # Индекс начала потенциального бычьего прорыва
-    num = 0  # Количество баров в потенциальном диапазоне бычьего прорыва
-    hgst = df['High'].rolling(window=prd).max().shift(1)  # Наивысший максимум в периоде prd
-
     bomin = np.nan  # Потенциальный уровень медвежьего прорыва
-    num1 = 0  # Количество баров в потенциальном диапазоне медвежьего прорыва
-    lwst = df['Low'].rolling(window=prd).min().shift(1)  # Самый низкий минимум в периоде prd
+    bostart = -1    # Индекс начала потенциального прорыва
+    num = 0         # Количество баров в потенциальном диапазоне бычьего прорыва
+    num1 = 0        # Количество баров в потенциальном диапазоне медвежьего прорыва
 
-    # Обнаружение бычьего прорыва
-    if len(phval) >= mintest and df['Close'] > df['Open'] and df['Close'] > hgst:
-        bomax = phval[0]
-        xx = 0
-        for x in range(len(phval)):
-            if phval[x] >= df['Close']:
-                break
-            xx = x
-            bomax = max(bomax, phval[x])
+    # Вычисление наивысшего и наинизшего значений
+    hgst = df['High'].rolling(window=prd).max().shift(1)
+    lwst = df['Low'].rolling(window=prd).min().shift(1)
 
-        if xx >= mintest and df['Open'] <= bomax:
-            for x in range(xx + 1):
-                if phval[x] <= bomax and phval[x] >= bomax - cwidthu:
-                    num += 1
-                    bostart = phloc[x]
+    # Обработка каждой строки DataFrame
+    for i in range(len(df)):
+        # Обнаружение бычьего прорыва
+        if len(phval) >= mintest and df['Close'][i] > df['Open'][i] and df['Close'][i] > hgst[i]:
+            current_bomax = phval[0]
+            xx = 0
+            for x in range(len(phval)):
+                if phval[x] >= df['Close'][i]:
+                    break
+                xx = x
+                current_bomax = max(current_bomax, phval[x])
 
-            if num < mintest or hgst >= bomax:
-                bomax = np.nan
+            if xx >= mintest and df['Open'][i] <= current_bomax:
+                current_num = 0
+                for x in range(xx + 1):
+                    if phval[x] <= current_bomax and phval[x] >= current_bomax - cwidthu:
+                        current_num += 1
+                        bostart = phloc[x]
 
-    # Обнаружение медвежьего прорыва
-    if len(plval) >= mintest and df['Close'] < df['Open'] and df['Close'] < lwst:
-        bomin = plval[0]
-        xx = 0
-        for x in range(len(plval)):
-            if plval[x] <= df['Close']:
-                break
-            xx = x
-            bomin = min(bomin, plval[x])
+                if current_num >= mintest and (np.isnan(bomax) or hgst[i] < current_bomax):
+                    bomax = current_bomax
+                    num = current_num
 
-        if xx >= mintest and df['Open'] >= bomin:
-            for x in range(xx + 1):
-                if plval[x] >= bomin and plval[x] <= bomin + cwidthu:
+        # Обнаружение медвежьего прорыва
+        if len(plval) >= mintest and df['Close'][i] < df['Open'][i] and df['Close'][i] < lwst[i]:
+            current_bomin = plval[0]
+            xx = 0
+            for x in range(len(plval)):
+                if plval[x] <= df['Close'][i]:
+                    break
+                xx = x
+                current_bomin = min(current_bomin, plval[x])
 
-                    num1 += 1
-                    bostart = plloc[x]
+            if xx >= mintest and df['Open'][i] >= current_bomin:
+                current_num1 = 0
+                for x in range(xx + 1):
+                    if plval[x] >= current_bomin and plval[x] <= current_bomin + cwidthu:
+                        current_num1 += 1
+                        bostart = plloc[x]
 
-            if num1 < mintest or lwst <= bomin:
-                bomin = np.nan
+                if current_num1 >= mintest and (np.isnan(bomin) or lwst[i] > current_bomin):
+                    bomin = current_bomin
+                    num1 = current_num1
 
     # Возвращаем результаты
     return bomax, bostart, num, bomin, num1
@@ -66,14 +72,15 @@ def pivothigh(df, left, right):
     pivot_highs = pd.Series([None] * length)
 
     for i in range(left, length - right):
-        max_left = df['High'][i - left:i].max()
-        max_right = df['High'][i + 1:i + 1 + right].max()
-        current_high = df['High'][i]
+        max_left = df['High'].iloc[i - left:i].max()
+        max_right = df['High'].iloc[i + 1:i + 1 + right].max()
+        current_high = df['High'].iloc[i]
 
         if current_high > max_left and current_high > max_right:
-            pivot_highs[i] = current_high
+            pivot_highs.iloc[i] = current_high
 
     return pivot_highs
+
 
 
 def pivotlow(df, left, right):
@@ -81,11 +88,12 @@ def pivotlow(df, left, right):
     pivot_lows = pd.Series([None] * length)
 
     for i in range(left, length - right):
-        min_left = df['Low'][i - left:i].min()
-        min_right = df['Low'][i + 1:i + 1 + right].min()
-        current_low = df['Low'][i]
+        min_left = df['Low'].iloc[i - left:i].min()
+        min_right = df['Low'].iloc[i + 1:i + 1 + right].min()
+        current_low = df['Low'].iloc[i]
 
         if current_low < min_left and current_low < min_right:
-            pivot_lows[i] = current_low
+            pivot_lows.iloc[i] = current_low
 
     return pivot_lows
+

@@ -30,7 +30,17 @@ def main():
         breakout_finder = BreakoutFinder(df_pair)
         breakout_finder.calculate_pivot_points()
         breakout_finder.calculate_breakout_width()
-        # Здесь добавьте соответствующие параметры для detect_breakouts
+
+        # Получение данных из breakout_finder
+        phval = breakout_finder.phval
+        phloc = breakout_finder.phloc
+        plval = breakout_finder.plval
+        plloc = breakout_finder.plloc
+        prd = breakout_finder.prd
+        cwidthu = breakout_finder.cwidthu
+        mintest = 3  # Примерное значение, установите его в соответствии с вашей логикой
+
+        # Вызов detect_breakouts с полученными данными
         detect_breakouts(df_pair, phval, phloc, plval, plloc, prd, cwidthu, mintest)
 
     # Запуск GUI
