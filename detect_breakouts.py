@@ -1,7 +1,13 @@
 # detect_breakouts.py
 import numpy as np
+import logging
+import pandas as pd
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def detect_breakouts(df, phval, phloc, plval, plloc, prd, cwidthu, mintest):
+    logging.info("Обнаружение прорывов")
+
     # Вводная часть для обнаружения прорывов
     bomax = np.nan  # Потенциальный уровень бычьего прорыва
     bostart = -1  # Индекс начала потенциального бычьего прорыва
@@ -44,6 +50,7 @@ def detect_breakouts(df, phval, phloc, plval, plloc, prd, cwidthu, mintest):
         if xx >= mintest and df['Open'] >= bomin:
             for x in range(xx + 1):
                 if plval[x] >= bomin and plval[x] <= bomin + cwidthu:
+
                     num1 += 1
                     bostart = plloc[x]
 
@@ -53,5 +60,32 @@ def detect_breakouts(df, phval, phloc, plval, plloc, prd, cwidthu, mintest):
     # Возвращаем результаты
     return bomax, bostart, num, bomin, num1
 
-# Пример использования функции
-# Результаты функции можно использовать для дальнейшего анализа или визуализации
+
+def pivothigh(df, left, right):
+    length = len(df)
+    pivot_highs = pd.Series([None] * length)
+
+    for i in range(left, length - right):
+        max_left = df['High'][i - left:i].max()
+        max_right = df['High'][i + 1:i + 1 + right].max()
+        current_high = df['High'][i]
+
+        if current_high > max_left and current_high > max_right:
+            pivot_highs[i] = current_high
+
+    return pivot_highs
+
+
+def pivotlow(df, left, right):
+    length = len(df)
+    pivot_lows = pd.Series([None] * length)
+
+    for i in range(left, length - right):
+        min_left = df['Low'][i - left:i].min()
+        min_right = df['Low'][i + 1:i + 1 + right].min()
+        current_low = df['Low'][i]
+
+        if current_low < min_left and current_low < min_right:
+            pivot_lows[i] = current_low
+
+    return pivot_lows

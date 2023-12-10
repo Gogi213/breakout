@@ -1,6 +1,10 @@
 # breakout.py
 import pandas as pd
 import pandas_ta as ta
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 class BreakoutFinder:
     def __init__(self, df, prd=5, prd2=3, bo_len=200, cwidthu=0.03):
@@ -44,13 +48,3 @@ class BreakoutFinder:
         bomin = np.nan  # Потенциальный уровень медвежьего прорыва
         num1 = 0  # Количество баров в потенциальном диапазоне медвежьего прорыва
         lwst = self.df['Low'].rolling(window=self.prd).min().shift(1)  # Самый низкий минимум в периоде prd
-
-        # Логика для обнаружения бычьих и медвежьих прорывов
-        # Этот метод должен быть дополнен соответствующей логикой
-
-# Пример использования
-# df - DataFrame с данными из Binance
-breakout_finder = BreakoutFinder(df)
-breakout_finder.calculate_pivot_points()
-breakout_finder.calculate_breakout_width()
-breakout_finder.detect_breakouts()

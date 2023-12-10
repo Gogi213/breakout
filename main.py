@@ -3,6 +3,8 @@ import pandas as pd
 from PyQt5.QtWidgets import QApplication
 from plot import MainApp
 from binance_api import get_top_futures_pairs, get_historical_futures_data, preload_data
+from breakout import BreakoutFinder
+from detect_breakouts import detect_breakouts
 
 def main():
     # Загрузка данных при запуске
@@ -22,6 +24,15 @@ def main():
     all_data.to_csv(csv_filename, index=False)
     print(f"All data saved to {csv_filename}")
 
+    # Обработка данных с помощью BreakoutFinder и detect_breakouts
+    for pair in top_pairs:
+        df_pair = all_data[all_data['Pair'] == pair]
+        breakout_finder = BreakoutFinder(df_pair)
+        breakout_finder.calculate_pivot_points()
+        breakout_finder.calculate_breakout_width()
+        # Здесь добавьте соответствующие параметры для detect_breakouts
+        detect_breakouts(df_pair, phval, phloc, plval, plloc, prd, cwidthu, mintest)
+
     # Запуск GUI
     app = QApplication(sys.argv)
     ex = MainApp()
@@ -30,4 +41,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
