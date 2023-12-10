@@ -2,10 +2,10 @@
 import pandas as pd
 import pandas_ta as ta
 import logging
+import numpy as np
 from detect_breakouts import pivothigh, pivotlow
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
 
 class BreakoutFinder:
     def __init__(self, df, prd=5, prd2=3, bo_len=200, cwidthu=0.03):
@@ -31,8 +31,9 @@ class BreakoutFinder:
         self.df.reset_index(drop=True, inplace=True)
 
         # Присваивание значений Pivot Points
-        self.df.loc[:, 'PivotHigh'] = pivothigh(self.df, left=self.prd, right=self.prd).copy()
-        self.df.loc[:, 'PivotLow'] = pivotlow(self.df, left=self.prd, right=self.prd).copy()
+        pivot_highs = pivothigh(self.df, left=self.prd, right=self.prd)
+        pivot_lows = pivotlow(self.df, left=self.prd, right=self.prd)
+        self.df = self.df.assign(PivotHigh=pivot_highs, PivotLow=pivot_lows)
 
         # Хранение значений и местоположений Pivot Points
         for i in range(len(self.df)):

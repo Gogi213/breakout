@@ -5,7 +5,7 @@ from cache_manager import CacheManager
 
 cache_manager = CacheManager()
 
-def get_top_futures_pairs(base_currency='USDT', limit=10):
+def get_top_futures_pairs(base_currency='USDT', limit=3):
     url = "https://fapi.binance.com/fapi/v1/ticker/24hr"
     response = requests.get(url)
     if response.status_code != 200:
@@ -16,7 +16,7 @@ def get_top_futures_pairs(base_currency='USDT', limit=10):
     pairs.sort(key=lambda x: float(x['quoteVolume']), reverse=True)
     return [pair['symbol'] for pair in pairs[:limit]]
 
-def get_historical_futures_data(symbol, interval='15m', limit=1000):
+def get_historical_futures_data(symbol, interval='15m', limit=700):
     cached_data = cache_manager.load_cache(symbol, interval)
     if cached_data is not None:
         return cached_data
