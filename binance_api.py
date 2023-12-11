@@ -16,7 +16,7 @@ def get_top_futures_pairs(base_currency='USDT', limit=1):
     pairs.sort(key=lambda x: float(x['quoteVolume']), reverse=True)
     return [pair['symbol'] for pair in pairs[:limit]]
 
-def get_historical_futures_data(symbol, interval='15m', limit=50):
+def get_historical_futures_data(symbol, interval='15m', limit=400):
     cached_data = cache_manager.load_cache(symbol, interval)
     if cached_data is not None:
         return cached_data

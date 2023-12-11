@@ -9,6 +9,10 @@ def detect_breakouts(df, phval, phloc, plval, plloc, prd, cwidthu, mintest):
     logging.info("Обнаружение прорывов")
     logging.info(f"Размер phval: {len(phval)}, Размер plval: {len(plval)}")
 
+    # Логирование содержимого phval и plval
+    logging.info(f"phval: {phval}")
+    logging.info(f"plval: {plval}")
+
     bomax = np.nan  # Потенциальный уровень бычьего прорыва
     bomin = np.nan  # Потенциальный уровень медвежьего прорыва
     bostart = -1    # Индекс начала потенциального прорыва
