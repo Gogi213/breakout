@@ -6,20 +6,17 @@ import pandas as pd
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def detect_breakouts(df, phval, phloc, plval, plloc, prd, cwidthu, mintest):
-    logging.info("Обнаружение прорывов")
+    # logging.info("Обнаружение прорывов")
 
-    # Инициализация переменных
     bomax = np.nan  # Потенциальный уровень бычьего прорыва
     bomin = np.nan  # Потенциальный уровень медвежьего прорыва
     bostart = -1    # Индекс начала потенциального прорыва
     num = 0         # Количество баров в потенциальном диапазоне бычьего прорыва
     num1 = 0        # Количество баров в потенциальном диапазоне медвежьего прорыва
 
-    # Вычисление наивысшего и наинизшего значений
     hgst = df['High'].rolling(window=prd).max().shift(1)
     lwst = df['Low'].rolling(window=prd).min().shift(1)
 
-    # Обработка каждой строки DataFrame
     for i in range(len(df)):
         # Обнаружение бычьего прорыва
         if len(phval) >= mintest and df['Close'][i] > df['Open'][i] and df['Close'][i] > hgst[i]:
@@ -41,6 +38,7 @@ def detect_breakouts(df, phval, phloc, plval, plloc, prd, cwidthu, mintest):
                 if current_num >= mintest and (np.isnan(bomax) or hgst[i] < current_bomax):
                     bomax = current_bomax
                     num = current_num
+                    logging.info(f"Pair: {df.loc[i, 'Pair']}, Pivot High1: {phval[0]}, Pivot High2: {phval[1] if len(phval) > 1 else 'N/A'}, Breakout: {bomax}")
 
         # Обнаружение медвежьего прорыва
         if len(plval) >= mintest and df['Close'][i] < df['Open'][i] and df['Close'][i] < lwst[i]:
@@ -62,8 +60,8 @@ def detect_breakouts(df, phval, phloc, plval, plloc, prd, cwidthu, mintest):
                 if current_num1 >= mintest and (np.isnan(bomin) or lwst[i] > current_bomin):
                     bomin = current_bomin
                     num1 = current_num1
+                    logging.info(f"Pair: {df.loc[i, 'Pair']}, Pivot Low1: {plval[0]}, Pivot Low2: {plval[1] if len(plval) > 1 else 'N/A'}, Breakout: {bomin}")
 
-    # Возвращаем результаты
     return bomax, bostart, num, bomin, num1
 
 
