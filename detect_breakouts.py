@@ -23,17 +23,18 @@ def detect_breakouts(df, phval, phloc, plval, plloc, prd, cwidthu, mintest):
     lwst = df['Low'].rolling(window=prd).min().shift(1)
 
     for i in range(len(df)):
-        logging.info(f"Текущий индекс: {i}, Close: {df['Close'][i]}, Open: {df['Open'][i]}")
-
         # Обнаружение бычьего прорыва
         if len(phval) >= mintest and df['Close'][i] > df['Open'][i] and df['Close'][i] > hgst[i]:
             current_bomax = phval[0]
             xx = 0
+            tests = []
             for x in range(len(phval)):
                 if phval[x] >= df['Close'][i]:
                     break
                 xx = x
                 current_bomax = max(current_bomax, phval[x])
+                if df['Close'][i] >= phval[x] - cwidthu and df['Close'][i] <= phval[x]:
+                    tests.append(phval[x])
 
             if xx >= mintest and df['Open'][i] <= current_bomax:
                 current_num = 0
@@ -45,17 +46,20 @@ def detect_breakouts(df, phval, phloc, plval, plloc, prd, cwidthu, mintest):
                 if current_num >= mintest and (np.isnan(bomax) or hgst[i] < current_bomax):
                     bomax = current_bomax
                     num = current_num
-                    logging.info(f"Pair: {df.loc[i, 'Pair']}, Pivot High1: {phval[0]}, Pivot High2: {phval[1] if len(phval) > 1 else 'N/A'}, Breakout: {bomax}")
+                    logging.info(f"Бычий прорыв на индексе {i}: Тесты {tests}, Прорыв на уровне {bomax}")
 
         # Обнаружение медвежьего прорыва
         if len(plval) >= mintest and df['Close'][i] < df['Open'][i] and df['Close'][i] < lwst[i]:
             current_bomin = plval[0]
             xx = 0
+            tests = []
             for x in range(len(plval)):
                 if plval[x] <= df['Close'][i]:
                     break
                 xx = x
                 current_bomin = min(current_bomin, plval[x])
+                if df['Close'][i] <= plval[x] + cwidthu and df['Close'][i] >= plval[x]:
+                    tests.append(plval[x])
 
             if xx >= mintest and df['Open'][i] >= current_bomin:
                 current_num1 = 0
@@ -67,7 +71,7 @@ def detect_breakouts(df, phval, phloc, plval, plloc, prd, cwidthu, mintest):
                 if current_num1 >= mintest and (np.isnan(bomin) or lwst[i] > current_bomin):
                     bomin = current_bomin
                     num1 = current_num1
-                    logging.info(f"Pair: {df.loc[i, 'Pair']}, Pivot Low1: {plval[0]}, Pivot Low2: {plval[1] if len(plval) > 1 else 'N/A'}, Breakout: {bomin}")
+                    logging.info(f"Медвежий прорыв на индексе {i}: Тесты {tests}, Прорыв на уровне {bomin}")
 
     return bomax, bostart, num, bomin, num1
 
