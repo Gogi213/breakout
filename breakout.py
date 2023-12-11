@@ -7,7 +7,7 @@ from detect_breakouts import pivothigh, pivotlow, detect_breakouts
 # logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class BreakoutFinder:
-    def __init__(self, df, prd=5, prd2=3, bo_len=200, cwidthu=0.03):
+    def __init__(self, df, prd=7, prd2=5, bo_len=1000, cwidthu=0.03):
         # logging.info("Инициализация BreakoutFinder")
         self.df = df
         self.prd = prd

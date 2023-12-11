@@ -6,7 +6,8 @@ import pandas as pd
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def detect_breakouts(df, phval, phloc, plval, plloc, prd, cwidthu, mintest):
-    # logging.info("Обнаружение прорывов")
+    logging.info("Обнаружение прорывов")
+    logging.info(f"Размер phval: {len(phval)}, Размер plval: {len(plval)}")
 
     bomax = np.nan  # Потенциальный уровень бычьего прорыва
     bomin = np.nan  # Потенциальный уровень медвежьего прорыва
@@ -18,6 +19,8 @@ def detect_breakouts(df, phval, phloc, plval, plloc, prd, cwidthu, mintest):
     lwst = df['Low'].rolling(window=prd).min().shift(1)
 
     for i in range(len(df)):
+        logging.info(f"Текущий индекс: {i}, Close: {df['Close'][i]}, Open: {df['Open'][i]}")
+
         # Обнаружение бычьего прорыва
         if len(phval) >= mintest and df['Close'][i] > df['Open'][i] and df['Close'][i] > hgst[i]:
             current_bomax = phval[0]
