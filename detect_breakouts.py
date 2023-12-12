@@ -9,6 +9,8 @@ def detect_breakouts(df, phval, phloc, plval, plloc, prd, cwidthu, mintest):
     logging.info("Обнаружение прорывов")
     logging.info(f"Размер phval: {len(phval)}, Размер plval: {len(plval)}")
 
+    logging.info(f"phval: {phval}")
+
     # Логирование содержимого phval и plval
     logging.info(f"phval: {phval}")
     logging.info(f"plval: {plval}")
@@ -20,11 +22,12 @@ def detect_breakouts(df, phval, phloc, plval, plloc, prd, cwidthu, mintest):
     num1 = 0        # Количество баров в потенциальном диапазоне медвежьего прорыва
 
     hgst = df['High'].rolling(window=prd).max().shift(1)
-    lwst = df['Low'].rolling(window=prd).min().shift(1)
+    # lwst = df['Low'].rolling(window=prd).min().shift(1)
 
     for i in range(len(df)):
         # Обнаружение бычьего прорыва
         if len(phval) >= mintest and df['Close'][i] > df['Open'][i] and df['Close'][i] > hgst[i]:
+            # logging.info(f"Проверка условий бычьего прорыва на баре {i}")
             current_bomax = phval[0]
             xx = 0
             tests = []
@@ -33,8 +36,10 @@ def detect_breakouts(df, phval, phloc, plval, plloc, prd, cwidthu, mintest):
                     break
                 xx = x
                 current_bomax = max(current_bomax, phval[x])
+                logging.info(f"Текущий current_bomax: {current_bomax}, phval[x]: {phval[x]}, Close: {df['Close'][i]}")
                 if df['Close'][i] >= phval[x] - cwidthu and df['Close'][i] <= phval[x]:
                     tests.append(phval[x])
+                    logging.info(f"Добавлено значение в tests: {phval[x]} на баре {i}")
 
             if xx >= mintest and df['Open'][i] <= current_bomax:
                 current_num = 0
@@ -42,39 +47,42 @@ def detect_breakouts(df, phval, phloc, plval, plloc, prd, cwidthu, mintest):
                     if phval[x] <= current_bomax and phval[x] >= current_bomax - cwidthu:
                         current_num += 1
                         bostart = phloc[x]
+                        logging.info(
+                            f"Текущий current_num: {current_num}, phval[x]: {phval[x]}, current_bomax: {current_bomax}")
 
                 if current_num >= mintest and (np.isnan(bomax) or hgst[i] < current_bomax):
                     bomax = current_bomax
                     num = current_num
-                    logging.info(f"Бычий прорыв на индексе {i}: Тесты {tests}, Прорыв на уровне {bomax}")
+                    logging.info(
+                        f"Бычий прорыв обнаружен на баре {i}. Уровень прорыва: {bomax}, Количество тестов: {num}, Тесты: {tests}")
 
-        # Обнаружение медвежьего прорыва
-        if len(plval) >= mintest and df['Close'][i] < df['Open'][i] and df['Close'][i] < lwst[i]:
-            current_bomin = plval[0]
-            xx = 0
-            tests = []
-            for x in range(len(plval)):
-                if plval[x] <= df['Close'][i]:
-                    break
-                xx = x
-                current_bomin = min(current_bomin, plval[x])
-                if df['Close'][i] <= plval[x] + cwidthu and df['Close'][i] >= plval[x]:
-                    tests.append(plval[x])
-
-            if xx >= mintest and df['Open'][i] >= current_bomin:
-                current_num1 = 0
-                for x in range(xx + 1):
-                    if plval[x] >= current_bomin and plval[x] <= current_bomin + cwidthu:
-                        current_num1 += 1
-                        bostart = plloc[x]
-
-                if current_num1 >= mintest and (np.isnan(bomin) or lwst[i] > current_bomin):
-                    bomin = current_bomin
-                    num1 = current_num1
-                    logging.info(f"Медвежий прорыв на индексе {i}: Тесты {tests}, Прорыв на уровне {bomin}")
+        # # Обнаружение медвежьего прорыва
+        # if len(plval) >= mintest and df['Close'][i] < df['Open'][i] and df['Close'][i] < lwst[i]:
+        #     logging.info(f"Проверка условий медвежьего прорыва на баре {i}")
+        #     current_bomin = plval[0]
+        #     xx = 0
+        #     tests = []
+        #     for x in range(len(plval)):
+        #         if plval[x] <= df['Close'][i]:
+        #             break
+        #         xx = x
+        #         current_bomin = min(current_bomin, plval[x])
+        #         if df['Close'][i] <= plval[x] + cwidthu and df['Close'][i] >= plval[x]:
+        #             tests.append(plval[x])
+        #
+        #     if xx >= mintest and df['Open'][i] >= current_bomin:
+        #         current_num1 = 0
+        #         for x in range(xx + 1):
+        #             if plval[x] >= current_bomin and plval[x] <= current_bomin + cwidthu:
+        #                 current_num1 += 1
+        #                 bostart = plloc[x]
+        #
+        #         if current_num1 >= mintest and (np.isnan(bomin) or lwst[i] > current_bomin):
+        #             bomin = current_bomin
+        #             num1 = current_num1
+        #             logging.info(f"Медвежий прорыв обнаружен на баре {i}. Уровень прорыва: {bomin}, Количество тестов: {num1}, Тесты: {tests}")
 
     return bomax, bostart, num, bomin, num1
-
 
 def pivothigh(df, left, right):
     length = len(df)
