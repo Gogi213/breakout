@@ -51,3 +51,9 @@ class BreakoutFinder:
     #     lowest_low = self.df['Low'].rolling(window=self.prd).min()
     #     self.df.loc[:, 'BreakoutWidth'] = (highest_high - lowest_low) * self.cwidthu
     #     # logging.info("Ширина прорыва рассчитана")
+
+    def calculate_chwidth(self):
+        highest_high = self.df['High'].rolling(window=self.prd).max()
+        lowest_low = self.df['Low'].rolling(window=self.prd).min()
+        self.df['chwidth'] = (highest_high - lowest_low) * self.cwidthu
+        print("chwidth calculated and added to DataFrame.")

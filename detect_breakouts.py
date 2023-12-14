@@ -39,7 +39,7 @@ def detect_breakouts(df, phval, phloc, plval, plloc, prd, cwidthu, mintest):
             current_num = 0
             if xx >= mintest and df['Open'][i] <= current_bomax:
                 for x in range(xx + 1):
-                    if phval[x] <= current_bomax and phval[x] >= current_bomax - cwidthu:
+                    if phval[x] <= current_bomax and phval[x] >= current_bomax - df['chwidth'][i]:
                         current_num += 1
                         bostart = phloc[x]
                         tests.append(phval[x])  # Добавление валидного теста в tests
@@ -66,7 +66,7 @@ def detect_breakouts(df, phval, phloc, plval, plloc, prd, cwidthu, mintest):
             current_num = 0
             if xx >= mintest and df['Open'][i] >= current_bomin:
                 for x in range(xx + 1):
-                    if plval[x] >= current_bomin and plval[x] <= current_bomin + cwidthu:
+                    if plval[x] >= current_bomin and plval[x] <= current_bomin + df['chwidth'][i]:
                         current_num += 1
                         bostart = plloc[x]
                         tests.append(plval[x])  # Добавление валидного теста в tests

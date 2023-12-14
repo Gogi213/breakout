@@ -29,6 +29,9 @@ def main():
         df_pair = all_data[all_data['Pair'] == pair]
         breakout_finder = BreakoutFinder(df_pair)
         breakout_finder.calculate_pivot_points()
+        breakout_finder.calculate_chwidth()
+
+        print("Checking if 'chwidth' is in df_pair columns:", 'chwidth' in df_pair.columns)
 
         # Получение данных из breakout_finder
         phval = breakout_finder.phval
@@ -37,6 +40,7 @@ def main():
         plloc = breakout_finder.plloc
         prd = breakout_finder.prd
         cwidthu = breakout_finder.cwidthu
+
         mintest = 3  # Примерное значение, установите его в соответствии с вашей логикой
 
         # Вызов detect_breakouts с полученными данными
