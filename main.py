@@ -39,7 +39,7 @@ def main():
         plloc = breakout_finder.plloc
         prd = breakout_finder.prd
         cwidthu = breakout_finder.cwidthu
-        mintest = 2  # Примерное значение, установите его в соответствии с вашей логикой
+        mintest = 3  # Примерное значение, установите его в соответствии с вашей логикой
 
         # Вызов detect_breakouts с полученными данными
         detect_breakouts(df_pair, phval, phloc, plval, plloc, prd, cwidthu, mintest)
