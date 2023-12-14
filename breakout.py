@@ -7,7 +7,7 @@ from detect_breakouts import pivothigh, pivotlow, detect_breakouts
 # logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class BreakoutFinder:
-    def __init__(self, df, prd=7, prd2=5, bo_len=1500, cwidthu=0.8):
+    def __init__(self, df, prd=7, prd2=5, bo_len=1500, cwidthu=1.5):
         # logging.info("Инициализация BreakoutFinder")
         self.df = df
         self.prd = prd
@@ -45,9 +45,9 @@ class BreakoutFinder:
 
         # logging.info("Pivot Points вычислены")
 
-    def calculate_breakout_width(self):
-        # logging.info("Расчет ширины прорыва")
-        highest_high = self.df['High'].rolling(window=self.prd).max()
-        lowest_low = self.df['Low'].rolling(window=self.prd).min()
-        self.df.loc[:, 'BreakoutWidth'] = (highest_high - lowest_low) * self.cwidthu
-        # logging.info("Ширина прорыва рассчитана")
+    # def calculate_breakout_width(self):
+    #     # logging.info("Расчет ширины прорыва")
+    #     highest_high = self.df['High'].rolling(window=self.prd).max()
+    #     lowest_low = self.df['Low'].rolling(window=self.prd).min()
+    #     self.df.loc[:, 'BreakoutWidth'] = (highest_high - lowest_low) * self.cwidthu
+    #     # logging.info("Ширина прорыва рассчитана")
