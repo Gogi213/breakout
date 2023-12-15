@@ -2,6 +2,9 @@
 import numpy as np
 import logging
 import pandas as pd
+from pandas.tseries.offsets import DateOffset
+
+
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -24,6 +27,9 @@ def detect_breakouts(df, phval, phloc, plval, plloc, prd, cwidthu, mintest):
     hgst = df['High'].rolling(window=prd).max().shift(1)
     lwst = df['Low'].rolling(window=prd).min().shift(1)
 
+    # Корректировка временных меток на GMT+2
+    df['Open time'] = pd.to_datetime(df['Open time']).apply(lambda x: x + DateOffset(hours=3))
+
     for i in range(len(df)):
         # Обнаружение бычьего прорыва
         if len(phval) >= mintest and df['Close'][i] > df['Open'][i] and df['Close'][i] > hgst[i]:
@@ -42,14 +48,16 @@ def detect_breakouts(df, phval, phloc, plval, plloc, prd, cwidthu, mintest):
                     if phval[x] <= current_bomax and phval[x] >= current_bomax - df['chwidth'][i]:
                         current_num += 1
                         bostart = phloc[x]
-                        tests.append(phval[x])  # Добавление валидного теста в tests
+                        test_time = df['Open time'][phloc[x]]  # Получение скорректированной временной метки для теста
+                        tests.append((phval[x], test_time))  # Добавление значения и временной метки в tests
 
                 if current_num >= mintest and (np.isnan(bomax) or hgst[i] < current_bomax):
                     bomax = current_bomax
                     num = current_num
                     pair_name = df['Pair'][i]  # Получение названия валютной пары
+                    breakout_time = df['Open time'][i]  # Получение скорректированной временной метки для прорыва
                     logging.info(
-                        f"Бычий прорыв обнаружен для {pair_name} на баре {i}. Уровень прорыва: {bomax}, Количество тестов: {num}, Валидные тесты: {tests}")
+                        f"Бычий прорыв обнаружен для {pair_name} на баре {i} ({breakout_time}). Уровень прорыва: {bomax}, Количество тестов: {num}, Валидные тесты: {tests}")
 
     for i in range(len(df)):
         # Обнаружение медвежьего прорыва
