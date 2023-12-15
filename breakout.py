@@ -7,7 +7,7 @@ from detect_breakouts import pivothigh, pivotlow, detect_breakouts
 # logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class BreakoutFinder:
-    def __init__(self, df, prd=7, prd2=5, bo_len=1500, cwidthu=0.1):
+    def __init__(self, df, prd=7, prd2=5, bo_len=1500, cwidthu=0.04):
         # logging.info("Инициализация BreakoutFinder")
         self.df = df
         self.prd = prd
@@ -53,8 +53,15 @@ class BreakoutFinder:
     #     # logging.info("Ширина прорыва рассчитана")
 
     def calculate_chwidth(self):
-        highest_high = self.df['High'].rolling(window=self.prd).max()
-        lowest_low = self.df['Low'].rolling(window=self.prd).min()
-        self.df['chwidth'] = (highest_high - lowest_low) * self.cwidthu
+        highest_high = [None] * len(self.df)
+        lowest_low = [None] * len(self.df)
+
+        for index in range(len(self.df)):
+            lll = max(min(index, 1500), 1)
+            highest_high[index] = self.df['High'][max(0, index - lll):index].max()
+            lowest_low[index] = self.df['Low'][max(0, index - lll):index].min()
+
+        self.df['chwidth'] = [(h - l) * self.cwidthu if h is not None and l is not None else None for h, l in
+                              zip(highest_high, lowest_low)]
         print("chwidth calculated and added to DataFrame.")
         return self.df
