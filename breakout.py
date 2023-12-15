@@ -7,7 +7,7 @@ from detect_breakouts import pivothigh, pivotlow, detect_breakouts
 # logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class BreakoutFinder:
-    def __init__(self, df, prd=7, prd2=4, bo_len=1500, cwidthu=0.05):
+    def __init__(self, df, prd=7, prd2=5, bo_len=1500, cwidthu=0.3):
         # logging.info("Инициализация BreakoutFinder")
         self.df = df
         self.prd = prd
@@ -42,6 +42,8 @@ class BreakoutFinder:
             if not pd.isna(self.df['PivotLow'][i]):
                 self.plval.append(self.df['PivotLow'][i])
                 self.plloc.append(i)
+
+        self.cleanup_old_pivot_points()
 
     def calculate_chwidth(self):
         highest_high = [None] * len(self.df)
